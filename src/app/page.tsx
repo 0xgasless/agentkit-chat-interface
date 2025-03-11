@@ -3,7 +3,7 @@
 // Import the crypto shim first, before any other imports
 import '../lib/crypto-shim';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import ChatInterface from '../components/ChatInterface';
 import Wallet from '../components/Wallet';
@@ -16,9 +16,11 @@ export default function Home() {
     const [isInitializing, setIsInitializing] = useState(false);
     const [config, setConfig] = useState<AgentConfig | null>(null);
     const [privateKey, setPrivateKey] = useState<`0x${string}` | null>(null);
+    const initErrorRef = useRef(false); // Track if we've already shown an error
 
     const initializeAgent = useCallback(async () => {
         if (!privateKey) return;
+        if (initErrorRef.current) return; // Don't retry if we've already had an error
 
         try {
             setIsInitializing(true);
@@ -38,7 +40,13 @@ export default function Home() {
             toast.success('Agent initialized successfully!');
         } catch (error) {
             console.error('Agent initialization error:', error);
-            toast.error(`Failed to initialize agent: ${error instanceof Error ? error.message : 'Unknown error'}`);
+            // Only show the error once
+            if (!initErrorRef.current) {
+                toast.error(`Failed to initialize agent: ${error instanceof Error ? error.message : 'Unknown error'}`);
+                initErrorRef.current = true;
+            }
+            // Reset wallet connection to allow user to retry
+            setIsWalletConnected(false);
         } finally {
             setIsInitializing(false);
         }
