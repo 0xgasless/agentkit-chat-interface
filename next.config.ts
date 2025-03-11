@@ -5,6 +5,13 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
+      // Add the crypto polyfill first
+      config.plugins.push(
+        new webpack.ProvidePlugin({
+          crypto: ['crypto-browserify']
+        })
+      );
+      
       // Handle node: protocol imports
       config.resolve.alias = {
         ...config.resolve.alias,

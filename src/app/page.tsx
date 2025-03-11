@@ -6,6 +6,7 @@ import ChatInterface from '../components/ChatInterface';
 import Wallet from '../components/Wallet';
 import type { AgentConfig } from '../components/AgentIntialize';
 import Image from 'next/image';
+import '../lib/crypto-polyfill';
 
 export default function Home() {
     const [isWalletConnected, setIsWalletConnected] = useState(false);
