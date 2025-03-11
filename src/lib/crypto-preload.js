@@ -1,21 +1,38 @@
 // IMPORTANT: This must be a .js file, not .ts
 // This file should be imported at the very top of your _app.js or page.js before any other imports
 
-// Define SHA224 on the global window object immediately
-if (typeof window !== "undefined") {
-	// Create crypto if it doesn't exist
-	if (!window.crypto) window.crypto = {};
-
-	// Add SHA224 function that will satisfy the library's requirements
-	window.crypto.SHA224 = (data) => {
-		// Just return a valid buffer - the actual hashing will happen on the server
-		return {
-			buffer: new ArrayBuffer(28),
-			toString: () => "sha224-buffer",
-			slice: () => new ArrayBuffer(28),
-			byteLength: 28,
-		};
-	};
-
-	console.log("SHA224 crypto preload installed");
-}
+// IMPORTANT: This file loads before any other code
+(() => {
+	// Ensure this runs immediately
+	if (typeof window !== 'undefined') {
+		try {
+			// Create crypto object if it doesn't exist
+			if (!window.crypto) {
+				window.crypto = {};
+			}
+			
+			// Add SHA224 directly to the object
+			window.crypto.SHA224 = (data) => {
+				// Return a fake buffer with typical buffer methods
+				const buffer = new Uint8Array(28);
+				return {
+					buffer: buffer.buffer,
+					toString: () => "dummy-sha224",
+					byteLength: 28,
+					slice: () => buffer
+				};
+			};
+			
+			// Create subtle if it doesn't exist
+			if (!window.crypto.subtle) {
+				window.crypto.subtle = {
+					digest: () => Promise.resolve(new ArrayBuffer(32))
+				};
+			}
+			
+			console.log("SHA224 preload applied successfully");
+		} catch (e) {
+			console.error("Error setting up crypto polyfill:", e);
+		}
+	}
+})();

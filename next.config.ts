@@ -40,9 +40,6 @@ const nextConfig: NextConfig = {
         path: require.resolve('path-browserify'),
       };
       
-      // Properly add plugins
-      config.plugins = config.plugins || [];
-      
       // Add Buffer and process polyfills
       config.plugins.push(
         new webpack.ProvidePlugin({
