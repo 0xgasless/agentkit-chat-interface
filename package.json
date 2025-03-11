@@ -20,6 +20,7 @@
     "@types/webpack-env": "^1.18.8",
     "assert": "^2.1.0",
     "browserify-fs": "^1.0.0",
+    "buffer": "^6.0.3",
     "crypto-browserify": "^3.12.1",
     "events": "^3.3.0",
     "https-browserify": "^1.0.0",
@@ -38,11 +39,12 @@
     "util": "^0.12.5"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^22.13.10",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "webpack": "^5.98.0"
   }
 }

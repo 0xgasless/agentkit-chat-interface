@@ -20,7 +20,6 @@ export default function ChatInterface({ config, privateKey }: Props) {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    // Add initial welcome message when component mounts
     useEffect(() => {
         setMessages([
             {
@@ -48,7 +47,6 @@ export default function ChatInterface({ config, privateKey }: Props) {
         const userMessage = input.trim();
         setInput('');
 
-        // Initial thinking state
         setMessages(prev => [
             ...prev,
             { role: 'user', content: userMessage },
@@ -74,7 +72,6 @@ export default function ChatInterface({ config, privateKey }: Props) {
                 throw new Error(errorData.error || 'Failed to get response');
             }
 
-            // Remove the thinking message
             setMessages(prev => prev.slice(0, -1));
 
             const reader = response.body?.getReader();
