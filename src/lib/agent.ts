@@ -14,27 +14,14 @@ export async function initializeAgent(privateKey: `0x${string}`) {
             },
         });
 
-        // Try a different approach to initialize the agent
-        // Wrap in try/catch to handle any errors
-        let agentkit: Agentkit | { getTools: () => never[] };
-        try {
-            agentkit = await Agentkit.configureWithWallet({
-                privateKey,
-                rpcUrl: process.env.NEXT_PUBLIC_RPC_URL as string,
-                apiKey: process.env.NEXT_PUBLIC_API_KEY as string,
-                chainID: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 8453,
-            });
-        } catch (error) {
-            console.error("Error configuring agentkit:", error);
-            // Create a simplified agentkit implementation
-            agentkit = {
-                // Add minimal required methods here
-                getTools: () => []
-            };
-        }
+        const agentkit = await Agentkit.configureWithWallet({
+            privateKey,
+            rpcUrl: process.env.NEXT_PUBLIC_RPC_URL as string,
+            apiKey: process.env.NEXT_PUBLIC_API_KEY as string,
+            chainID: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 8453,
+        });
 
-        // Use the agentkit (real or mock) to create tools
-        const agentkitToolkit = new AgentkitToolkit(agentkit as Agentkit);
+        const agentkitToolkit = new AgentkitToolkit(agentkit);
         const tools = agentkitToolkit.getTools();
 
         const memory = new MemorySaver();
