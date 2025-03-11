@@ -5,6 +5,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import ChatInterface from '../components/ChatInterface';
 import Wallet from '../components/Wallet';
 import type { AgentConfig } from '../components/AgentIntialize';
+import Image from 'next/image';
 
 export default function Home() {
     const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -56,9 +57,12 @@ export default function Home() {
         <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-900 to-purple-900/60 p-4">
             <Toaster position="top-right" />
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-5xl font-bold text-center mb-8 text-white font-quantico shadow-lg tracking-tighter leading-tight mt-10">
-                    0xGasless AgentKit Chat Interface
-                </h1>
+                <div className="flex justify-center items-center mb-8">
+                    <Image src="/0xGasless.png" alt="0xGasless Logo" width={100} height={100} className="rounded-full w-16 h-16 mt-4" />
+                    <h1 className="text-5xl font-bold text-center mb-8 text-white font-quantico shadow-lg tracking-tighter leading-tight mt-10">
+                        0xGasless AgentKit Chat Interface
+                    </h1>
+                </div>
 
                 {!isWalletConnected ? (
                     <Wallet onConnect={handleWalletConnect} />

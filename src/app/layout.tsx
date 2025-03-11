@@ -10,7 +10,7 @@ const quantico = Quantico({
 
 export const metadata: Metadata = {
   title: '0xGasless AgentKit Chat',
-  description: 'Chat interface for 0xGasless AgentKit',
+  description: 'Chat interface for 0xGasless AgentKit to try all actions of the 0xgasless agentkit',
 };
 
 export default function RootLayout({
