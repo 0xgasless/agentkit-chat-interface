@@ -1,6 +1,7 @@
 'use client';
 
-// Import the crypto shim first, before any other imports
+// Import the preload script before anything else
+import '../lib/crypto-preload.js';
 import '../lib/crypto-shim';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
