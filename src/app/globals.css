@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Quantico:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 
 :root {
   --background: #ffffff;
@@ -23,4 +24,44 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@keyframes pulse-border {
+  0% {
+      opacity: 0.2;
+  }
+  50% {
+      opacity: 0.5;
+  }
+  100% {
+      opacity: 0.2;
+  }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.quantico-regular {
+font-family: "Quantico", serif;
+font-weight: 400;
+font-style: normal;
+}
+
+.quantico-bold {
+font-family: "Quantico", serif;
+font-weight: 700;
+font-style: normal;
+}
+
+.quantico-regular-italic {
+font-family: "Quantico", serif;
+font-weight: 400;
+font-style: italic;
+}
+
+.quantico-bold-italic {
+font-family: "Quantico", serif;
+font-weight: 700;
+font-style: italic;
 }
