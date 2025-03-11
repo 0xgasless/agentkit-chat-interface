@@ -1,13 +1,6 @@
 // Browser-safe crypto polyfill that includes SHA224 support
 import { createHash } from 'crypto-browserify';
 
-// Add SHA224 to the Crypto interface
-declare global {
-    interface Crypto {
-        SHA224?: (data: string) => Buffer;
-    }
-}
-
 // Only execute this code once
 let polyfillApplied = false;
 

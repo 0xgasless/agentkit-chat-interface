@@ -1,14 +1,7 @@
 'use client';
 
-// First, declare the custom SHA224 property on Crypto interface
-declare global {
-    interface Crypto {
-        SHA224?: (data: string) => any; // Use 'any' to bypass type checking for this custom property
-    }
-}
-
+// Remove the interface declaration since it's now in global.d.ts
 // The simplest approach - use a global var to track availability
-const crypto = typeof window !== 'undefined' ? (window.crypto || {}) : {};
 
 // Browser-compatible crypto polyfill
 if (typeof window !== 'undefined') {
