@@ -1,9 +1,5 @@
 'use client';
 
-// Import the preload script before anything else
-import '../lib/crypto-preload.js';
-import '../lib/crypto-shim';
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import ChatInterface from '../components/ChatInterface';
