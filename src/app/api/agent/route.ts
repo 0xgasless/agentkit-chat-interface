@@ -1,6 +1,6 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
-import { initializeAgent } from '../../../lib/agent';
+import { getOrCreateAgent } from '../../../lib/agent';
 import { HumanMessage } from '@langchain/core/messages';
 
 // Store agent instances by private key (in a real app, use a proper session mechanism)
@@ -23,14 +23,8 @@ export async function POST(request: NextRequest) {
                 }, { status: 400 });
             }
 
-            // Get the agent instance for this private key
-            const instance = agentInstances.get(privateKey);
-            if (!instance) {
-                return NextResponse.json({
-                    success: false,
-                    error: 'Agent not initialized. Please initialize first.'
-                }, { status: 400 });
-            }
+            // Get agent instance server-side
+            const instance = await getOrCreateAgent(privateKey);
 
             // Transform messages to the format LangChain expects
             const transformedMessages = messages.map((msg: { content: string }) => {
@@ -77,8 +71,7 @@ export async function POST(request: NextRequest) {
         }
         
         // Handle agent initialization (no else needed)
-        const body = await request.json();
-        const { privateKey } = body;
+        const { privateKey } = await request.json();
 
         if (!privateKey) {
             return NextResponse.json({
@@ -87,19 +80,21 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
-        // Initialize the agent if we don't have it yet
-        if (!agentInstances.has(privateKey)) {
-            const result = await initializeAgent(privateKey);
-            agentInstances.set(privateKey, result);
+        try {
+            // Get or create agent
+            const instance = await getOrCreateAgent(privateKey);
+            
+            return NextResponse.json({
+                success: true,
+                config: instance.config
+            });
+        } catch (error) {
+            console.error("Agent creation error:", error);
+            return NextResponse.json({
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error'
+            }, { status: 500 });
         }
-
-        const instance = agentInstances.get(privateKey);
-
-        // Return success but not the actual agent (it can't be serialized)
-        return NextResponse.json({
-            success: true,
-            config: instance.config
-        });
         
     } catch (error) {
         console.error('API error:', error);
