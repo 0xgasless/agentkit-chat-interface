@@ -24,10 +24,14 @@ export default function ChatInterface({ config, privateKey }: Props) {
         setMessages([
             {
                 role: 'agent',
-                content: 'Hello! I am your AI assistant. How may I help you today? I can help you with:\n\n' +
-                    '• Checking token balances\n' +
-                    '• Transferring tokens\n' +
-                    '• Interacting with smart contracts',
+                content: 'Hello! I am your 0xGasless Smart Account assistant. I can help you with:\n\n' +
+                    '• Checking ETH and token balances\n' +
+                    '• Performing gasless token transfers\n' +
+                    '• Executing token swaps without gas fees\n' +
+                    '• Creating new smart accounts\n' +
+                    '• Checking transaction status\n' +
+                    '• Performing debridge swaps\n\n' +
+                    'How can I assist you today?',
             }
         ]);
     }, []);
@@ -100,7 +104,7 @@ export default function ChatInterface({ config, privateKey }: Props) {
                                 role: 'agent',
                                 content: chunk.agent.messages[0].kwargs.content
                             }]);
-                        } else if ('tools' in chunk && chunk.tools?.messages[0]?.kwargs?.content) {
+                        } else if ('tools' in chunk && chunk.tools?.messages[0]?.kwargs) {
                             const toolMessage = chunk.tools.messages[0].kwargs;
 
                             if (toolMessage.error) {
@@ -108,6 +112,19 @@ export default function ChatInterface({ config, privateKey }: Props) {
                                     role: 'tool',
                                     content: `Tool Error: ${toolMessage.error}`,
                                     type: 'error'
+                                }]);
+                            } else if (toolMessage.content) {
+                                setMessages(prev => [...prev, {
+                                    role: 'tool',
+                                    content: `${toolMessage.content}`,
+                                    type: 'success'
+                                }]);
+                            } else {
+                                const toolContent = JSON.stringify(toolMessage, null, 2);
+                                setMessages(prev => [...prev, {
+                                    role: 'tool',
+                                    content: `Tool Response: ${toolContent}`,
+                                    type: 'success'
                                 }]);
                             }
                         } else if ('error' in chunk) {
