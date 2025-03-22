@@ -41,6 +41,43 @@ async function createAgentInstance(privateKey: `0x${string}`) {
         const toolkit = new AgentkitToolkit(agentkit);
         const tools = toolkit.getTools();
 
+        // Log details about each tool
+        // for (const tool of tools) {
+        //     console.log(`Tool registered: ${tool.name}`);
+            
+        //     // For all transaction-related tools
+        //     if (['swap_tokens', 'transfer_tokens', 'send_transaction'].includes(tool.name)) {
+        //         const originalCall = tool.call.bind(tool);
+        //         tool.call = async (...args) => {
+        //             console.log(`${tool.name.toUpperCase()} CALLED WITH ARGS:`, JSON.stringify(args, null, 2));
+        //             try {
+        //                 const result = await originalCall(...args);
+        //                 console.log(`${tool.name.toUpperCase()} RESULT:`, JSON.stringify(result, null, 2));
+                        
+        //                 // Add operation hash info to the result if it exists
+        //                 if (result && typeof result === 'object' && 'opHash' in result) {
+        //                     return {
+        //                         ...result,
+        //                         content: `Transaction submitted! User Operation Hash: ${result.opHash}\n\nThis operation will be bundled and executed on BSC. You can track this transaction on the BSC explorer once it's confirmed.`
+        //                     };
+        //                 }
+                        
+        //                 return result;
+        //             } catch (error) {
+        //                 console.error(`${tool.name.toUpperCase()} ERROR DETAILS:`, {
+        //                     error,
+        //                     message: error instanceof Error ? error.message : "Unknown error",
+        //                     stack: error instanceof Error ? error.stack : "No stack trace",
+        //                     args: JSON.stringify(args, null, 2)
+        //                 });
+        //                 throw error;
+        //             }
+        //         };
+        //     }
+        // }
+
+        // console.log(`Loaded ${tools.length} tools for BSC`);
+
         const memory = new MemorySaver();
         const config = { configurable: { thread_id: "0xGasless AgentKit Chat" } };
 
@@ -102,8 +139,15 @@ For token swaps on BSC:
 2. Don't try to resolve symbols - use the predefined addresses directly
 3. Always specify the exact contract addresses in your swap calls
 4. Remember all operations are on Binance Smart Chain
+5. When performing a swap, provide specific amounts (e.g. "Swap 1 USDT to USDC")
 
 Please ensure all addresses and token amounts are properly validated before executing transactions on BSC.
+
+For transaction tracking on BSC:
+1. Always include the user operation hash in your responses when transactions are submitted
+2. Explain what this hash represents and how users can track their transaction
+3. Clarify that with gasless transactions, first a user operation hash is created, then it becomes a transaction
+4. Format transaction/operation hashes in a way that's easy to copy
 
 Be concise and helpful in your responses. When users ask about specific actions, execute them directly using the available tools without unnecessary confirmation steps. Always use the exact token addresses provided above for BSC operations. Remember you are operating exclusively on Binance Smart Chain (BSC).
 

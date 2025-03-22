@@ -6,7 +6,7 @@ import type { AgentConfig } from './AgentIntialize';
 interface Message {
     role: 'user' | 'agent' | 'system' | 'tool';
     content: string;
-    type?: 'loading' | 'transaction' | 'error' | 'success';
+    type?: 'loading' | 'transaction' | 'error' | 'success' | 'warning';
 }
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
     privateKey: `0x${string}`;
 }
 
-export default function ChatInterface({ config, privateKey }: Props) {
+export default function ChatInterface({ privateKey }: Props) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -37,7 +37,15 @@ export default function ChatInterface({ config, privateKey }: Props) {
     }, []);
 
     const scrollToBottom = useCallback(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(() => {
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'end',
+                    inline: 'nearest'
+                });
+            }
+        }, 100);
     }, []);
 
     useEffect(() => {
@@ -65,7 +73,7 @@ export default function ChatInterface({ config, privateKey }: Props) {
                     'Content-Type': 'application/json',
                     'x-action': 'chat'
                 },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     messages: [{ role: 'user', content: userMessage }],
                     privateKey
                 })
@@ -87,23 +95,24 @@ export default function ChatInterface({ config, privateKey }: Props) {
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
-                
+
                 buffer += decoder.decode(value, { stream: true });
-                
+
                 const lines = buffer.split('\n');
                 buffer = lines.pop() || '';
-                
+
                 for (const line of lines) {
                     if (!line.trim()) continue;
-                    
+
                     try {
                         const chunk = JSON.parse(line);
-                        
+
                         if ('agent' in chunk && chunk.agent?.messages[0]?.kwargs?.content) {
                             setMessages(prev => [...prev, {
                                 role: 'agent',
                                 content: chunk.agent.messages[0].kwargs.content
                             }]);
+                            scrollToBottom();
                         } else if ('tools' in chunk && chunk.tools?.messages[0]?.kwargs) {
                             const toolMessage = chunk.tools.messages[0].kwargs;
 
@@ -113,12 +122,77 @@ export default function ChatInterface({ config, privateKey }: Props) {
                                     content: `Tool Error: ${toolMessage.error}`,
                                     type: 'error'
                                 }]);
+                                scrollToBottom();
                             } else if (toolMessage.content) {
-                                setMessages(prev => [...prev, {
-                                    role: 'tool',
-                                    content: `${toolMessage.content}`,
-                                    type: 'success'
-                                }]);
+                                if (typeof toolMessage.content === 'string' && toolMessage.content.includes('User Operation Hash')) {
+                                    setMessages(prev => [...prev, {
+                                        role: 'tool',
+                                        content: toolMessage.content,
+                                        type: 'transaction'
+                                    }]);
+
+                                    try {
+                                        const opHash = toolMessage.content.match(/User Operation Hash: (0x[a-fA-F0-9]+)/)?.[1];
+                                        if (opHash) {
+                                            let attempts = 0;
+                                            const maxAttempts = 24;
+
+                                            const pollInterval = setInterval(async () => {
+                                                attempts++;
+                                                try {
+                                                    const statusResponse = await fetch('/api/transaction-status', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ opHash })
+                                                    });
+
+                                                    if (statusResponse.ok) {
+                                                        const status = await statusResponse.json();
+                                                        if (status.transactionHash) {
+                                                            clearInterval(pollInterval);
+                                                            setMessages(prev => {
+                                                                const withoutPending = prev.filter(msg =>
+                                                                    !(msg.content === toolMessage.content && msg.type === 'transaction')
+                                                                );
+                                                                return [...withoutPending, {
+                                                                    role: 'tool',
+                                                                    content: `${toolMessage.content}\n\n✅ Transaction Confirmed!\n\n🔷 User Operation Hash:\n${opHash}\n\n🔷 Transaction Hash:\n${status.transactionHash}\n\nYou can view the transaction details on BSC Explorer.`,
+                                                                    type: 'success'
+                                                                }];
+                                                            });
+                                                            scrollToBottom();
+                                                        }
+                                                    }
+
+                                                    if (attempts >= maxAttempts) {
+                                                        clearInterval(pollInterval);
+                                                        setMessages(prev => {
+                                                            const withoutPending = prev.filter(msg =>
+                                                                !(msg.content === toolMessage.content && msg.type === 'transaction')
+                                                            );
+                                                            return [...withoutPending, {
+                                                                role: 'tool',
+                                                                content: `${toolMessage.content}\n\nTransaction status update timed out. Please check the blockchain explorer using the operation hash.`,
+                                                                type: 'warning'
+                                                            }];
+                                                        });
+                                                        scrollToBottom();
+                                                    }
+                                                } catch (error) {
+                                                    console.error('Error polling transaction status:', error);
+                                                }
+                                            }, 5000);
+                                        }
+                                    } catch (error) {
+                                        console.error('Error setting up transaction polling:', error);
+                                    }
+                                } else {
+                                    // setMessages(prev => [...prev, {
+                                    //     role: 'tool',
+                                    //     content: toolMessage.content,
+                                    //     type: 'success'
+                                    // }]);
+                                }
                             } else {
                                 const toolContent = JSON.stringify(toolMessage, null, 2);
                                 setMessages(prev => [...prev, {
@@ -126,6 +200,7 @@ export default function ChatInterface({ config, privateKey }: Props) {
                                     content: `Tool Response: ${toolContent}`,
                                     type: 'success'
                                 }]);
+                                scrollToBottom();
                             }
                         } else if ('error' in chunk) {
                             throw new Error(chunk.error);
@@ -137,7 +212,7 @@ export default function ChatInterface({ config, privateKey }: Props) {
             }
         } catch (error) {
             setMessages(prev => {
-                const messages = prev.filter(msg => 
+                const messages = prev.filter(msg =>
                     !(msg.type === 'loading' || msg.type === 'transaction')
                 );
                 return [...messages, {
@@ -148,6 +223,7 @@ export default function ChatInterface({ config, privateKey }: Props) {
                         : '❌ Error: Failed to get response from agent.'
                 }];
             });
+            scrollToBottom();
         } finally {
             setIsLoading(false);
         }
@@ -155,30 +231,31 @@ export default function ChatInterface({ config, privateKey }: Props) {
 
     return (
         <div className="bg-gray-900/50 backdrop-blur-sm rounded-lg shadow-lg border border-purple-600/80 h-[600px] flex flex-col">
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 scroll-smooth" style={{ scrollBehavior: 'smooth' }}>
                 {messages.map((message, index) => (
                     <div
                         key={`${index + 1}`}
                         className={`mb-4 ${message.role === 'user' ? 'text-right' : 'text-left'}`}
                     >
                         <div
-                            className={`inline-block p-3 rounded-lg ${
-                                message.role === 'user'
+                            className={`inline-block p-3 rounded-lg ${message.role === 'user'
                                     ? 'bg-gray-700 text-white'
-                                    : message.role === 'tool'
-                                        ? 'bg-blue-800/40 text-white border border-blue-500/30'
-                                        : message.type === 'loading'
-                                            ? 'bg-gray-800 text-white animate-pulse'
-                                            : message.type === 'transaction'
-                                                ? 'bg-blue-900/50 text-white border border-blue-500/30'
-                                                : message.type === 'error'
-                                                    ? 'bg-red-900/50 text-white border border-red-500/30'
+                                    // : message.role === 'tool'
+                                    //     ? 'bg-blue-800/40 text-white border border-blue-500/30'
+                                    : message.type === 'loading'
+                                        ? 'bg-gray-800 text-white animate-pulse'
+                                        : message.type === 'transaction'
+                                            ? 'bg-blue-900/50 text-white border border-blue-500/30'
+                                            : message.type === 'error'
+                                                ? 'bg-red-900/50 text-white border border-red-500/30'
+                                                : message.type === 'warning'
+                                                    ? 'bg-yellow-900/50 text-white border border-yellow-500/30'
                                                     : 'bg-purple-800/40 text-white'
-                            }`}
+                                }`}
                         >
-                            {message.role === 'tool' && (
+                            {/* {message.role === 'tool' && (
                                 <div className="text-xs text-blue-300 mb-1 font-mono">🛠️ Tool Output</div>
-                            )}
+                            )} */}
                             {message.role === 'agent' && (
                                 <div className="text-xs text-purple-300 mb-1 font-mono">🤖 Agent Response</div>
                             )}
@@ -191,7 +268,8 @@ export default function ChatInterface({ config, privateKey }: Props) {
                         </div>
                     </div>
                 ))}
-                <div ref={messagesEndRef} />
+                <div className="h-4" />
+                <div ref={messagesEndRef} className="h-8" />
             </div>
 
             <form onSubmit={handleSubmit} className="p-4 border-t-2 border-purple-600/50">

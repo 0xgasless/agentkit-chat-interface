@@ -6,6 +6,7 @@ import ChatInterface from '../components/ChatInterface';
 import Wallet from '../components/Wallet';
 import type { AgentConfig } from '../components/AgentIntialize';
 import Image from 'next/image';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Home() {
     const [isWalletConnected, setIsWalletConnected] = useState(false);
@@ -80,10 +81,12 @@ export default function Home() {
                         <p className="mt-2 text-gray-600">Initializing Agent...</p>
                     </div>
                 ) : (
-                    <ChatInterface
-                        config={config as AgentConfig}
-                        privateKey={privateKey as `0x${string}`}
-                    />
+                    <ErrorBoundary>
+                        <ChatInterface
+                            config={config as AgentConfig}
+                            privateKey={privateKey as `0x${string}`}
+                        />
+                    </ErrorBoundary>
                 )}
             </div>
         </main>
