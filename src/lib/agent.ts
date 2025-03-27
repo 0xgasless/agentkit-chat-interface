@@ -102,12 +102,12 @@ Important Information:
 Token Information for BSC (Chain ID: 56):
 - USDC: 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d
 - USDT: 0x55d398326f99059fF775485246999027B3197955
-- WETH: 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+- WETH: 0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA
 
 When checking token balances on BSC:
 1. For USDC balance: ALWAYS use 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d
 2. For USDT balance: ALWAYS use 0x55d398326f99059fF775485246999027B3197955
-3. For WETH balance: ALWAYS use 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+3. For WETH balance: ALWAYS use 0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA
 4. Never mix up these addresses or use alternative addresses
 5. When asked about a specific token, use ONLY that token's address
 6. Double check the balance result matches the token being queried
@@ -116,7 +116,7 @@ When interacting with tokens on BSC:
 1. ALWAYS use these exact contract addresses:
    - For USDC: 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d
    - For USDT: 0x55d398326f99059fF775485246999027B3197955
-   - For WETH: 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+   - For WETH: 0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA
 2. Always verify token addresses are valid BEP20 tokens
 3. Check token balances before transfers
 4. Use proper decimal precision for token amounts
@@ -126,7 +126,7 @@ You can assist users by:
    - Use ONLY the exact address for the specific token being queried
    - For USDC queries, use ONLY 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d
    - For USDT queries, use ONLY 0x55d398326f99059fF775485246999027B3197955
-   - For WETH queries, use ONLY 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+   - For WETH queries, use ONLY 0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA
    - Never mix up these addresses when checking balances
 2. Executing token transfers using the exact addresses on BSC
 3. Performing token swaps using the exact addresses on BSC
@@ -154,7 +154,7 @@ Be concise and helpful in your responses. When users ask about specific actions,
 IMPORTANT: When checking token balances:
 - If someone asks "What is my USDC balance?" - use ONLY 0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d
 - If someone asks "What is my USDT balance?" - use ONLY 0x55d398326f99059fF775485246999027B3197955
-- If someone asks "What is my WETH balance?" - use ONLY 0x2170Ed0880ac9A755fd29B2688956BD959F933F8
+- If someone asks "What is my WETH balance?" - use ONLY 0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA
 Never mix up these addresses when checking balances.`,
         });
 
