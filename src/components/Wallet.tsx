@@ -139,7 +139,7 @@ export default function Wallet({ onConnect }: Props) {
                         ⚠️ <strong>Important:</strong> Your private key gives full access to your funds.
                         Copy and store it in a safe place. You can Import it later if you want.
                     </p>
-                    <div className="bg-gray-300 border-2 border-gray-700 rounded-md p-3 rounded break-all font-mono text-sm relative group">
+                    <div className="bg-gray-300 border-2 border-gray-700 rounded-md p-3 break-all font-mono text-sm relative group">
                         <div className="flex items-center">
                             <div className={`flex-grow filter blur-sm transition-all duration-300 ${isCopied ? "opacity-20" : ""}`}>
                                 {privateKey}
